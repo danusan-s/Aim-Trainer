@@ -2,17 +2,16 @@
 #define GAME_H
 
 #include "clickable_object.h"
-#include "sprite_renderer.h"
-#include "tetromino.h"
+#include "sprite_renderer_2D.h"
+#include "game_object.h" // Also includes sprite_renderer_3D.h
 #include "text_renderer.h"
+#include "camera.h"
+#include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <vector>
 
 // Represents the current state of the game
 enum class GameState { GAME_ACTIVE, GAME_MENU, GAME_OVER };
-
-enum class BlockColor { NONE, RED, GREEN, BLUE, CYAN, PURPLE, YELLOW, ORANGE };
 
 // Game holds all game-related state and functionality.
 // Combines all game-related data into a single class for
@@ -20,22 +19,21 @@ enum class BlockColor { NONE, RED, GREEN, BLUE, CYAN, PURPLE, YELLOW, ORANGE };
 class Game {
    private:
     // Game-related State data
-    SpriteRenderer* renderer;
+    SpriteRenderer2D* renderer2D;
+    SpriteRenderer3D* lightRenderer3D;
+    SpriteRenderer3D* cubeRenderer3D;
     TextRenderer* text;
-    std::vector<std::vector<BlockColor>> grid;
-    Tetromino* currentTetromino;
-    Tetromino* nextTetromino;
     ClickableObject* startButton;
-    int rowCellCount, colCellCount;
-    float borderCellRatio, paddingCellRatio;
-    glm::vec3 flashColor;
-    float CELL_SIZE;
+    std::vector<std::vector<GameObject*>> gameObjects;
 
    public:
     // game state
     GameState State;
     int Score;
     bool Keys[1024];
+    Camera* camera;
+    float lastX, lastY;
+    bool firstMouse;
     float ClickX, ClickY;
     float ReleaseX, ReleaseY;
     unsigned int Width, Height;
@@ -46,11 +44,7 @@ class Game {
     void Init();
     // game loop
     void ProcessInput(float dt);
-    void SpawnTetromino();
     void Update(float dt);
-    void FixTetrominoToGrid();
-    void ClearCompletedRows();
-    bool CheckCollision(Tetromino* tetromino);
     void Render();
     // reset
     void ResetGame();

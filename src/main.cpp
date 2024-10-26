@@ -10,6 +10,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 // The Width of the screen
 const unsigned int SCREEN_WIDTH = 1920;
@@ -43,6 +44,7 @@ int main(int argc, char* argv[]) {
     glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     // OpenGL configuration
     // --------------------
@@ -122,4 +124,23 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             AimTrainer.ReleaseY = yPos;
         }
     }
+}
+
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (AimTrainer.firstMouse) {
+        AimTrainer.lastX = xpos;
+        AimTrainer.lastY = ypos;
+        AimTrainer.firstMouse = false;
+    }
+
+    float xoffset = xpos - AimTrainer.lastX;
+    float yoffset = AimTrainer.lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    AimTrainer.lastX = xpos;
+    AimTrainer.lastY = ypos;
+
+    AimTrainer.camera->ProcessMouseMovement(xoffset, yoffset);
 }
